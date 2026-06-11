@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Messdatenerfassung</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+body { font-family: Arial; padding: 20px; }
+input { width: 100%; margin-bottom: 10px; }
+table { border-collapse: collapse; width: 100%; }
+td, th { border: 1px solid #ccc; padding: 5px; }
+button { margin: 5px; padding: 10px; }
+video { margin-top: 10px; }
+</style>
+</head>
+
+<body>
+
+<h2>Testdaten - Pullout Test</h2>
+
+<input id="projekt" placeholder="Projektname">
+<input id="datum" placeholder="Datum">
+<input id="uhrzeit" placeholder="Uhrzeit">
+<input id="nummer" placeholder="Nummer">
+<input id="rammtiefe" placeholder="Rammtiefe">
+<input id="kommentar" placeholder="Kommentar">
+
+<h3>Video</h3>
+<video id="preview" autoplay muted width="300"></video><br>
+<button onclick="startRecording()">🎥 Start</button>
+<button onclick="stopRecording()">⏹ Stop</button>
+<p id="status"></p>
+
+<h4>(Verschiebung: Wert direkt nach Last; Verschiebung*: Wert am Ende der Lastphase)</h4>
+
+<h3>Horizontale Verformung</h3>
+
+<table id="table">
+<tr>
+<th>Last in kN</th>
+<th>Verschiebung in mm</th>
+<th>Verschiebung* in mm</th>
+</tr>
+</table>
+
+<h4>Akzeptanzkriterien Horizontal: max. 25mm & bei vollständiger Entlastung max. 10mm</h4>
+
+<h3>Vertikale Verformung Auszug</h3>
+
+<table id="table2">
+<tr>
+<th>Last in kN</th>
+<th>Verschiebung in mm</th>
+<th>Verschiebung* in mm</th>
+</tr>
+</table>
+
+<h3>Vertikale Verformung Druck</h3>
+
+<table id="table3">
+<tr>
+<th>Last in kN</th>
+<th>Verschiebung in mm</th>
+<th>Verschiebung* in mm</th>
+</tr>
+</table>
+
+<h4>Akzeptanzkriterium Vertikal: max. 10mm</h4>
+
+<button onclick="saveAll()">💾 Speichern</button>
+
+<script>
+// Tabelle erzeugen
+const table = document.getElementById("table");
+const labels = ["0", "4", "0", "10", "0", "16", "0", "22", "0", "28.2"];
+
+for (let i = 0; i < 10; i++) {
+  let row = table.insertRow();
+  row.insertCell(0).innerText = labels[i];
+  row.insertCell(1).innerHTML = "<input>";
+  row.insertCell(2).innerHTML = "<input>";
+}
+
+const table2 = document.getElementById("table2");
+const labels2 = ["0", "2", "0", "4", "0", "6", "0", "8", "0", "10.3"];
+
+for (let i = 0; i < 10; i++) {
+  let row = table2.insertRow();
+  row.insertCell(0).innerText = labels2[i];
+  row.insertCell(1).innerHTML = "<input>";
+  row.insertCell(2).innerHTML = "<input>";
+}
+
+const table3 = document.getElementById("table3");
+const labels3 = ["0", "5", "0", "10", "0", "15", "0", "20", "0", "24.9"];
+
+for (let i = 0; i < 10; i++) {
+  let row = table3.insertRow();
+  row.insertCell(0).innerText = labels3[i];
+  row.insertCell(1).innerHTML = "<input>";
+  row.insertCell(2).innerHTML = "<input>";
+}
+
+// ID generieren
+function generateID() {
+  const name = document.getElementById("projekt").value.replace(/\s+/g, "_");
+  const date = document.getElementById("datum").value;
+  const now = new Date();
+  const time =
+    now.getHours() + "-" +
+    now.getMinutes() + "-" +
+    now.getSeconds();
+  return name + "_" + date + "_" + time;
+}
+
+// Daten sammeln
+function collectData() {
+  let data = {
+    projekt: projekt.value,
+    datum: datum.value,
+    uhrzeit: uhrzeit.value,
+    nummer: nummer.value,
+    rammtiefe: rammtiefe.value,
+    kommentar: kommentar.value,
+    table: []
+  };
+
+  for (let i = 1; i <= 10; i++) {
+    let row = table.rows[i];
+    data.table.push([
+      row.cells[1].children[0].value,
+      row.cells[2].children[0].value
+    ]);
+  }
+
+  for (let i = 1; i <= 10; i++) {
+    let row = table2.rows[i];
+    data.table.push([
+      row.cells[1].children[0].value,
+      row.cells[2].children[0].value
+    ]);
+  }
+
+  for (let i = 1; i <= 10; i++) {
+    let row = table3.rows[i];
+    data.table.push([
+      row.cells[1].children[0].value,
+      row.cells[2].children[0].value
+    ]);
+  }
+
+  return data;
+}
+
+// PDF
+function exportPDF(data) {
+  const { jsPDF } = window.jspdf;
+  let doc = new jsPDF();
+  let y = 10;
+
+  doc.text("Messdaten", 10, y);
+  y += 10;
+
+  doc.text(`Projekt: ${data.projekt}`, 10, y); y += 8;
+  doc.text(`Datum: ${data.datum}`, 10, y); y += 8;
+  doc.text(`Uhrzeit: ${data.uhrzeit}`, 10, y); y += 8;
+  doc.text(`Nummer: ${data.nummer}`, 10, y); y += 8;
+  doc.text(`Rammtiefe: ${data.rammtiefe}`, 10, y); y += 8;
+  doc.text(`Kommentar: ${data.kommentar}`, 10, y); y += 10;
+
+  y += 5;
+
+  data.table.forEach((row, i) => {
+    doc.text(`${i+1}: ${row[0]} | ${row[1]}`, 10, y);
+    y += 6;
+  });
+
+  doc.save(data.id + ".pdf");
+}
+
+// JSON senden
+async function sendToServer(data) {
+  await fetch("/save-data", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(data)
+  });
+}
+
+// Gesamt speichern
+async function saveAll() {
+  const data = collectData();
+
+  const id = generateID();
+  data.id = id;
+
+  exportPDF(data);
+  await sendToServer(data);
+
+  alert("Gespeichert!");
+}
+
+// VIDEO
+let mediaRecorder;
+let chunks = [];
+
+async function startRecording() {
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: {
+      facingMode: { ideal: "environment" } //  Rückkamera
+    },
+    audio: true
+  });
+
+  preview.srcObject = stream;
+
+  mediaRecorder = new MediaRecorder(stream);
+  chunks = [];
+
+  mediaRecorder.ondataavailable = e => chunks.push(e.data);
+  mediaRecorder.start();
+  console.log("Aufnahme läuft...");
+  document.getElementById("status").innerText =
+  "🔴 Aufnahme läuft...";
+}
+
+function stopRecording() {
+  mediaRecorder.stop();
+
+  mediaRecorder.onstop = async () => {
+    const blob = new Blob(chunks, { type: "video/webm" });
+
+    const id = generateID();
+
+    // lokal speichern
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = id + ".webm";
+    a.click();
+
+    // Upload
+    const formData = new FormData();
+    formData.append("video", blob, id + ".webm");
+    formData.append("id", id);
+
+    await fetch("/upload-video", {
+      method: "POST",
+      body: formData
+    });
+  };
+  document.getElementById("status").innerText =
+  "⏹ Aufnahme beendet";
+}
+
+window.onload = () => {
+  const now = new Date();
+
+  datum.value = now.toISOString().slice(0,10);
+  uhrzeit.value = now.toTimeString().slice(0,5);
+};
+
+</script>
+
+</body>
+</html>
