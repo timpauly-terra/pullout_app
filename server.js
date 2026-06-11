@@ -1,8 +1,8 @@
 const { Storage } = require("@google-cloud/storage");
-const storage = new Storage();
+const cloudStorage = new Storage();
 
 const bucketName = "pullout-data";
-const bucket = storage.bucket(bucketName);
+const bucket = cloudStorage.bucket(bucketName);
 const express = require("express");
 const multer = require("multer");
 const fs = require("fs");
@@ -48,20 +48,37 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // JSON speichern
-app.post("/save-data", (req, res) => {
-  const data = req.body;
+app.post("/save-data", async (req, res) => {
 
-  const id = data.id || ("unknown_" + Date.now());
-  const filename = `${id}.json`;
+  try {
 
-  await bucket.file(`json/${filename}`).save(
-    JSON.stringify(data, null, 2),
-    {
-      contentType: "application/json"
-    }
-  );
+    const data = req.body;
 
-  res.json({ status: "ok", file: filename });
+    const id = data.id || ("unknown_" + Date.now());
+    const filename = `${id}.json`;
+
+    await bucket.file(`json/${filename}`).save(
+      JSON.stringify(data, null, 2),
+      {
+        contentType: "application/json"
+      }
+    );
+
+    res.json({
+      status: "ok",
+      file: filename
+    });
+
+  } catch(err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      error: err.message
+    });
+
+  }
+
 });
 
 // 🎥 Video speichern
@@ -75,5 +92,5 @@ app.post("/upload-video", upload.single("video"), (req, res) => {
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
-  console.log("Server läuft auf Port ${PORT}");
+  console.log(`Server läuft auf Port ${PORT}`);
 });
