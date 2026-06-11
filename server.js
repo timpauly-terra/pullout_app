@@ -1,3 +1,8 @@
+const { Storage } = require("@google-cloud/storage");
+const storage = new Storage();
+
+const bucketName = "pullout-data";
+const bucket = storage.bucket(bucketName);
 const express = require("express");
 const multer = require("multer");
 const fs = require("fs");
@@ -49,9 +54,11 @@ app.post("/save-data", (req, res) => {
   const id = data.id || ("unknown_" + Date.now());
   const filename = `${id}.json`;
 
-  fs.writeFileSync(
-    path.join("uploads", filename),
-    JSON.stringify(data, null, 2)
+  await bucket.file(`json/${filename}`).save(
+    JSON.stringify(data, null, 2),
+    {
+      contentType: "application/json"
+    }
   );
 
   res.json({ status: "ok", file: filename });
