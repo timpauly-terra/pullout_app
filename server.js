@@ -82,11 +82,35 @@ app.post("/save-data", async (req, res) => {
 });
 
 // 🎥 Video speichern
-app.post("/upload-video", upload.single("video"), (req, res) => {
-  res.json({
-    status: "video saved",
-    file: req.file.filename
-  });
+app.post("/upload-video", upload.single("video"), async (req, res) => {
+
+  try {
+
+    const localPath = req.file.path;
+
+    const targetName = `videos/${req.file.filename}`;
+
+    await bucket.upload(localPath, {
+      destination: targetName
+    });
+
+    fs.unlinkSync(localPath);
+
+    res.json({
+      status: "ok",
+      file: targetName
+    });
+
+  } catch(err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      error: err.message
+    });
+
+  }
+
 });
 
 const PORT = process.env.PORT || 8080;
