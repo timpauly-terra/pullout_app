@@ -81,6 +81,49 @@ app.post("/save-data", async (req, res) => {
 
 });
 
+// Photo
+const uploadPhoto = multer({
+  dest: "uploads/"
+});
+
+app.post(
+  "/upload-photo",
+  uploadPhoto.single("photo"),
+  async (req, res) => {
+
+    try {
+
+      const localPath = req.file.path;
+
+      const targetName =
+        `photos/${req.file.originalname}`;
+
+      await bucket.upload(
+        localPath,
+        {
+          destination: targetName
+        }
+      );
+
+      fs.unlinkSync(localPath);
+
+      res.json({
+        status: "ok"
+      });
+
+    } catch(err) {
+
+      console.error(err);
+
+      res.status(500).json({
+        error: err.message
+      });
+
+    }
+
+  }
+);
+
 // 🎥 Video speichern
 app.post("/upload-video", upload.single("video"), async (req, res) => {
 
