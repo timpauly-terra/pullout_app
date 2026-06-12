@@ -25,7 +25,6 @@ video { margin-top: 10px; }
 <input id="uhrzeit" placeholder="Uhrzeit">
 <input id="nummer" placeholder="Nummer">
 <input id="rammtiefe" placeholder="Rammtiefe">
-<input id="kommentar" placeholder="Kommentar">
 
 <h3>Video</h3>
 <video id="preview" autoplay muted width="300"></video><br>
@@ -68,6 +67,26 @@ video { margin-top: 10px; }
 </table>
 
 <h4>Akzeptanzkriterium Vertikal: max. 10mm</h4>
+
+<input id="kommentar" placeholder="Kommentar">
+<input id="rammzeit" placeholder="Rammzeit">
+
+<button onclick="takePhoto()">📷 Foto machen</button>
+<br><br>
+
+<img id="photoPreview" width="300">
+
+<video
+  id="camera"
+  autoplay
+  playsinline
+  style="display:none;">
+</video>
+
+<canvas
+  id="canvas"
+  style="display:none;">
+</canvas>
 
 <button onclick="saveAll()">💾 Speichern</button>
 
@@ -255,6 +274,73 @@ function stopRecording() {
   "⏹ Aufnahme beendet";
 }
 
+let photoBlob = null;
+
+async function takePhoto() {
+
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: {
+      facingMode: { ideal: "environment" }
+    }
+  });
+
+  const video = document.getElementById("camera");
+
+  video.srcObject = stream;
+
+  await new Promise(resolve => {
+    video.onloadedmetadata = resolve;
+  });
+
+  const canvas = document.getElementById("canvas");
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  const ctx = canvas.getContext("2d");
+
+  ctx.drawImage(
+    video,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  photoBlob = await new Promise(resolve =>
+    canvas.toBlob(resolve, "image/jpeg", 0.9)
+  );
+
+  document.getElementById("photoPreview").src =
+    URL.createObjectURL(photoBlob);
+
+  stream.getTracks().forEach(track => track.stop());
+
+  uploadPhoto();
+}
+
+async function uploadPhoto() {
+
+  if (!photoBlob) return;
+
+  const id = generateID();
+
+  const formData = new FormData();
+
+  formData.append(
+    "photo",
+    photoBlob,
+    id + ".jpg"
+  );
+
+  await fetch("/upload-photo", {
+    method: "POST",
+    body: formData
+  });
+
+  console.log("Foto hochgeladen");
+}
+  
 window.onload = () => {
   const now = new Date();
 
