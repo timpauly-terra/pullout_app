@@ -143,6 +143,7 @@ function collectData() {
     nummer: nummer.value,
     rammtiefe: rammtiefe.value,
     kommentar: kommentar.value,
+    rammzeit: rammzeit.value,
     table: []
   };
 
@@ -188,6 +189,7 @@ function exportPDF(data) {
   doc.text(`Nummer: ${data.nummer}`, 10, y); y += 8;
   doc.text(`Rammtiefe: ${data.rammtiefe}`, 10, y); y += 8;
   doc.text(`Kommentar: ${data.kommentar}`, 10, y); y += 10;
+  doc.text(`Rammzeit: ${data.rammzeit}`, 10, y); y+= 10;
 
   y += 5;
 
