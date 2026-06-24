@@ -42,7 +42,7 @@ video { margin-top: 10px; }
   step="any"
   inputmode="decimal">
 
-<h3>Video</h3>
+<h2>Video</h2>
 <video id="preview" autoplay muted width="300"></video><br>
 <button onclick="startRecording()">🎥 Start</button>
 <button onclick="stopRecording()">⏹ Stop</button>
@@ -50,7 +50,7 @@ video { margin-top: 10px; }
 
 <h4>(Verschiebung: Wert direkt nach Last; Verschiebung*: Wert am Ende der Lastphase)</h4>
 
-<h3>Horizontale Verformung</h3>
+<h2>Horizontale Verformung</h2>
 
 <table id="table">
 <tr>
@@ -62,7 +62,7 @@ video { margin-top: 10px; }
 
 <h4>Akzeptanzkriterien Horizontal: max. 25mm & bei vollständiger Entlastung max. 10mm</h4>
 
-<h3>Vertikale Verformung Auszug</h3>
+<h2>Vertikale Verformung Auszug</h2>
 
 <table id="table2">
 <tr>
@@ -72,7 +72,7 @@ video { margin-top: 10px; }
 </tr>
 </table>
 
-<h3>Vertikale Verformung Druck</h3>
+<h2>Vertikale Verformung Druck</h2>
 
 <table id="table3">
 <tr>
@@ -117,8 +117,8 @@ const labels = ["0", "4", "0", "10", "0", "16", "0", "22", "0", "28.2"];
 for (let i = 0; i < 10; i++) {
   let row = table.insertRow();
   row.insertCell(0).innerText = labels[i];
-  row.insertCell(1).innerHTML = "<input type="number" inputmode="decimal">";
-  row.insertCell(2).innerHTML = "<input type="number" inputmode="decimal">";
+  row.insertCell(1).innerHTML = '<input type="number" inputmode="decimal">';
+  row.insertCell(2).innerHTML = '<input type="number" inputmode="decimal">';
 }
 
 const table2 = document.getElementById("table2");
@@ -127,8 +127,8 @@ const labels2 = ["0", "2", "0", "4", "0", "6", "0", "8", "0", "10.3"];
 for (let i = 0; i < 10; i++) {
   let row = table2.insertRow();
   row.insertCell(0).innerText = labels2[i];
-  row.insertCell(1).innerHTML = "<input type="number" inputmode="decimal">";
-  row.insertCell(2).innerHTML = "<input type="number" inputmode="decimal">";
+  row.insertCell(1).innerHTML = '<input type="number" inputmode="decimal">';
+  row.insertCell(2).innerHTML = '<input type="number" inputmode="decimal">';
 }
 
 const table3 = document.getElementById("table3");
@@ -137,8 +137,8 @@ const labels3 = ["0", "5", "0", "10", "0", "15", "0", "20", "0", "24.9"];
 for (let i = 0; i < 10; i++) {
   let row = table3.insertRow();
   row.insertCell(0).innerText = labels3[i];
-  row.insertCell(1).innerHTML = "<input type="number" inputmode="decimal">";
-  row.insertCell(2).innerHTML = "<input type="number" inputmode="decimal">";
+  row.insertCell(1).innerHTML = '<input type="number" inputmode="decimal">';
+  row.insertCell(2).innerHTML = '<input type="number" inputmode="decimal">';
 }
 
 // ID generieren
