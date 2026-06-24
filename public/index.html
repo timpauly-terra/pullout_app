@@ -372,7 +372,14 @@ window.onload = () => {
 
   }
 };
-  
+
+window.addEventListener("beforeunload", (e) => {
+
+  e.preventDefault();
+  e.returnValue = "";
+
+});
+
 window.onload = () => {
   const now = new Date();
 
