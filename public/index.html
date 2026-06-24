@@ -221,6 +221,8 @@ async function saveAll() {
   await sendToServer(data);
 
   alert("Gespeichert!");
+
+  localStorage.removeItem("pullout_backup");
 }
 
 // VIDEO
@@ -343,6 +345,13 @@ async function uploadPhoto() {
   console.log("Foto hochgeladen");
 }
 
+window.onload = () => {
+  const now = new Date();
+
+  datum.value = now.toISOString().slice(0,10);
+  uhrzeit.value = now.toTimeString().slice(0,5);
+};
+
 setInterval(autoSave, 10000);
 
 function autoSave() {
@@ -357,10 +366,59 @@ function autoSave() {
   console.log("Autosave");
 }
 
-window.onload = () => {
+function restoreData(data) {
 
-  const backup =
-    localStorage.getItem("pullout_backup");
+  projekt.value = data.projekt || "";
+  datum.value = data.datum || "";
+  uhrzeit.value = data.uhrzeit || "";
+  nummer.value = data.nummer || "";
+  rammtiefe.value = data.rammtiefe || "";
+  kommentar.value = data.kommentar || "";
+  rammzeit.value = data.rammzeit || "";
+
+  // Tabelle 1
+  for (let i = 1; i <= 10; i++) {
+
+    let row = table.rows[i];
+
+    row.cells[1].children[0].value =
+      data.table[i - 1]?.[0] || "";
+
+    row.cells[2].children[0].value =
+      data.table[i - 1]?.[1] || "";
+  }
+
+  // Tabelle 2
+  for (let i = 1; i <= 10; i++) {
+
+    let row = table2.rows[i];
+
+    row.cells[1].children[0].value =
+      data.table[i + 9]?.[0] || "";
+
+    row.cells[2].children[0].value =
+      data.table[i + 9]?.[1] || "";
+  }
+
+  // Tabelle 3
+  for (let i = 1; i <= 10; i++) {
+
+    let row = table3.rows[i];
+
+    row.cells[1].children[0].value =
+      data.table[i + 19]?.[0] || "";
+
+    row.cells[2].children[0].value =
+      data.table[i + 19]?.[1] || "";
+  }
+
+  console.log("Backup wiederhergestellt");
+
+}  
+  
+window.addEventListener("load", () => {
+
+  const backup = localStorage.getItem("pullout_backup");
 
   if (!backup) return;
 
@@ -369,9 +427,9 @@ window.onload = () => {
     const data = JSON.parse(backup);
 
     restoreData(data);
-
   }
-};
+
+});
 
 window.addEventListener("beforeunload", (e) => {
 
@@ -379,15 +437,6 @@ window.addEventListener("beforeunload", (e) => {
   e.returnValue = "";
 
 });
-
-window.onload = () => {
-  const now = new Date();
-
-  datum.value = now.toISOString().slice(0,10);
-  uhrzeit.value = now.toTimeString().slice(0,5);
-};
-
-localStorage.removeItem("pullout_backup");
 
 </script>
 
