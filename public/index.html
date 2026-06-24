@@ -8,7 +8,16 @@
 
 <style>
 body { font-family: Arial; padding: 20px; }
-input { width: 100%; margin-bottom: 10px; }
+input {
+  width: 100%;
+  height: 50px;
+  font-size: 24px;
+  box-sizing: border-box;
+}
+textarea {
+  width: 100%;
+  font-size: 24px;
+}
 table { border-collapse: collapse; width: 100%; }
 td, th { border: 1px solid #ccc; padding: 5px; }
 button { margin: 5px; padding: 10px; }
@@ -23,8 +32,15 @@ video { margin-top: 10px; }
 <input id="projekt" placeholder="Projektname">
 <input id="datum" placeholder="Datum">
 <input id="uhrzeit" placeholder="Uhrzeit">
-<input id="nummer" placeholder="Pfosten Nummer">
-<input id="rammtiefe" placeholder="Rammtiefe in Meter">
+<input id="nummer" 
+  placeholder="Pfosten Nummer"
+  type="number"
+  inputmode="numeric">
+<input id="rammtiefe" 
+  placeholder="Rammtiefe in Meter"
+  type="number"
+  step="any"
+  inputmode="decimal">
 
 <h3>Video</h3>
 <video id="preview" autoplay muted width="300"></video><br>
@@ -68,7 +84,10 @@ video { margin-top: 10px; }
 
 <h4>Akzeptanzkriterium Vertikal: max. 10mm</h4>
 
-<input id="kommentar" placeholder="Kommentar">
+<textarea
+  id="kommentar"
+  rows="4">
+</textarea>
 <input id="rammzeit" placeholder="Rammzeit">
 
 <button onclick="takePhoto()">📷 Foto machen</button>
@@ -98,8 +117,8 @@ const labels = ["0", "4", "0", "10", "0", "16", "0", "22", "0", "28.2"];
 for (let i = 0; i < 10; i++) {
   let row = table.insertRow();
   row.insertCell(0).innerText = labels[i];
-  row.insertCell(1).innerHTML = "<input>";
-  row.insertCell(2).innerHTML = "<input>";
+  row.insertCell(1).innerHTML = "<input type="number" inputmode="decimal">";
+  row.insertCell(2).innerHTML = "<input type="number" inputmode="decimal">";
 }
 
 const table2 = document.getElementById("table2");
@@ -108,8 +127,8 @@ const labels2 = ["0", "2", "0", "4", "0", "6", "0", "8", "0", "10.3"];
 for (let i = 0; i < 10; i++) {
   let row = table2.insertRow();
   row.insertCell(0).innerText = labels2[i];
-  row.insertCell(1).innerHTML = "<input>";
-  row.insertCell(2).innerHTML = "<input>";
+  row.insertCell(1).innerHTML = "<input type="number" inputmode="decimal">";
+  row.insertCell(2).innerHTML = "<input type="number" inputmode="decimal">";
 }
 
 const table3 = document.getElementById("table3");
@@ -118,8 +137,8 @@ const labels3 = ["0", "5", "0", "10", "0", "15", "0", "20", "0", "24.9"];
 for (let i = 0; i < 10; i++) {
   let row = table3.insertRow();
   row.insertCell(0).innerText = labels3[i];
-  row.insertCell(1).innerHTML = "<input>";
-  row.insertCell(2).innerHTML = "<input>";
+  row.insertCell(1).innerHTML = "<input type="number" inputmode="decimal">";
+  row.insertCell(2).innerHTML = "<input type="number" inputmode="decimal">";
 }
 
 // ID generieren
