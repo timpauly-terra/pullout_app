@@ -23,8 +23,8 @@ video { margin-top: 10px; }
 <input id="projekt" placeholder="Projektname">
 <input id="datum" placeholder="Datum">
 <input id="uhrzeit" placeholder="Uhrzeit">
-<input id="nummer" placeholder="Nummer">
-<input id="rammtiefe" placeholder="Rammtiefe">
+<input id="nummer" placeholder="Pfosten Nummer">
+<input id="rammtiefe" placeholder="Rammtiefe in Meter">
 
 <h3>Video</h3>
 <video id="preview" autoplay muted width="300"></video><br>
@@ -342,6 +342,36 @@ async function uploadPhoto() {
 
   console.log("Foto hochgeladen");
 }
+
+setInterval(autoSave, 10000);
+
+function autoSave() {
+
+  const data = collectData();
+
+  localStorage.setItem(
+    "pullout_backup",
+    JSON.stringify(data)
+  );
+
+  console.log("Autosave");
+}
+
+window.onload = () => {
+
+  const backup =
+    localStorage.getItem("pullout_backup");
+
+  if (!backup) return;
+
+  if (confirm("Gespeicherte Daten wiederherstellen?")) {
+
+    const data = JSON.parse(backup);
+
+    restoreData(data);
+
+  }
+};
   
 window.onload = () => {
   const now = new Date();
@@ -349,6 +379,8 @@ window.onload = () => {
   datum.value = now.toISOString().slice(0,10);
   uhrzeit.value = now.toTimeString().slice(0,5);
 };
+
+localStorage.removeItem("pullout_backup");
 
 </script>
 
