@@ -5,7 +5,7 @@
 <title>Messdatenerfassung</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
+<link rel="manifest" href="/manifest.json">
 <style>
 body { font-family: Arial; padding: 20px; }
 input {
@@ -457,6 +457,14 @@ window.addEventListener("beforeunload", (e) => {
   e.returnValue = "";
 
 });
+
+if ("serviceWorker" in navigator) {
+
+  navigator.serviceWorker.register(
+    "/service-worker.js"
+  );
+
+}
 
 </script>
 
