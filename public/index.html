@@ -88,6 +88,22 @@ video { margin-top: 10px; }
 
 <h4>Akzeptanzkriterium Vertikal: max. 10mm</h4>
 
+<label>
+<input
+type="checkbox"
+id="damage">
+
+Pfosten beschädigt
+</label>
+
+<label>
+<input
+type="checkbox"
+id="coatdamage">
+
+Coating beschädigt
+</label>
+    
 <textarea
   id="kommentar"
   placeholder="Kommentar"
@@ -202,6 +218,8 @@ function collectData() {
     rammtiefe: rammtiefe.value,
     kommentar: kommentar.value,
     rammzeit: rammzeit.value,
+    damage: damage.checked,
+    coatdamage: coatdamage.checked,
     table: []
   };
 
