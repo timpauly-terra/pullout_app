@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <title>Messdatenerfassung</title>
+<select id="language" onchange="changeLanguage()">
+    <option value="de">Deutsch</option>
+    <option value="en">English</option>
+</select>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link rel="manifest" href="/manifest.json">
@@ -111,6 +115,40 @@ video { margin-top: 10px; }
 <button onclick="saveAll()">💾 Speichern</button>
 
 <script>
+
+const lang = {
+  de: {
+    projekt: "Projektname",
+    nummer: "Nummer",
+    kommentar: "Kommentar",
+    rammtiefe: "Rammtiefe in Meter",
+    rammzeit: "Rammzeit",
+    speichern: "💾 Speichern"
+  },
+
+  en: {
+    projekt: "Project",
+    nummer: "Number",
+    kommentar: "Comment",
+    rammtiefe: "Depth in Meters",
+    rammzeit: "Ramming Time",
+    speichern: "💾 Save"
+  }
+};
+
+function changeLanguage(){
+
+    const l = lang[language.value];
+
+    document.getElementById("projekt").placeholder = l.projekt;
+    document.getElementById("nummer").placeholder = l.nummer;
+    document.getElementById("kommentar").placeholder = l.kommentar;
+    document.getElementById("rammtiefe").placeholder = l.rammtiefe;
+    document.getElementById("rammzeit").placeholder = l.rammzeit;
+    document.getElementById("speichern").placeholder = l.speichern;
+
+}
+  
 // Tabelle erzeugen
 const table = document.getElementById("table");
 const labels = ["0", "4", "0", "10", "0", "16", "0", "22", "0", "28.2"];
