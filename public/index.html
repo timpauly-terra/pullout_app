@@ -45,6 +45,11 @@ video { margin-top: 10px; }
   type="number"
   step="any"
   inputmode="decimal">
+<input id="rammzeit" 
+  placeholder="Rammzeit in Minuten"
+  type="number"
+  step="any"
+  inputmode="decimal">
 
 <h2>Video</h2>
 <video id="preview" autoplay muted width="300"></video><br>
@@ -87,31 +92,30 @@ video { margin-top: 10px; }
 </table>
 
 <h4>Akzeptanzkriterium Vertikal: max. 10mm</h4>
-
+<br>
 <label>
 <input
 type="checkbox"
 id="damage">
 
-Pfosten beschädigt
+Pfosten beschädigt (damage)
 </label>
-
+<br>
 <label>
 <input
 type="checkbox"
 id="coatdamage">
 
-Coating beschädigt
+Coating beschädigt (damage)
 </label>
-    
+<br>
 <textarea
   id="kommentar"
   placeholder="Kommentar"
   rows="4">
 </textarea>
-<input id="rammzeit" placeholder="Rammzeit">
-
-<button onclick="takePhoto()">📷 Foto</button>
+<br>
+<button onclick="takePhoto()">📷 Photo</button>
 <br><br>
 
 <img id="photoPreview" width="300">
