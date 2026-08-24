@@ -38,11 +38,11 @@ video { margin-top: 10px; }
 </select>
 
 <button onclick="loadSelectedTest()">
-    ✏️ Bearbeiten
+     Bearbeiten
 </button>
 
 <button onclick="newTest()">
-    ➕ Neuer Test
+     Neuer Test
 </button>
     
 <h2>Pullout Test</h2>
@@ -368,8 +368,9 @@ async function saveAll() {
     await loadTestList();
 }
 
+console.log("LOAD TEST LIST FUNCTION VORHANDEN");
 async function loadTestList() {
-
+    console.log("loadTestList() wurde aufgerufen");
     const response = await fetch("/data");
     const tests = await response.json();
 
