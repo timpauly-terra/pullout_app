@@ -31,6 +31,20 @@ video { margin-top: 10px; }
 
 <body>
 
+<h3>Gespeicherte Tests</h3>
+
+<select id="savedTests">
+    <option value="">Test auswählen...</option>
+</select>
+
+<button onclick="loadSelectedTest()">
+    ✏️ Bearbeiten
+</button>
+
+<button onclick="newTest()">
+    ➕ Neuer Test
+</button>
+    
 <h2>Pullout Test</h2>
 
 <input id="projekt" placeholder="Projektname">
@@ -283,6 +297,84 @@ function exportPDF(data) {
   doc.save(data.id + ".pdf");
 }
 
+app.get("/data", async (req, res) => {
+
+    try {
+
+        const [files] = await bucket.getFiles({
+            prefix: "json/"
+        });
+
+        const data = files
+            .filter(file => file.name.endsWith(".json"))
+            .map(file => file.name.replace("json/", "").replace(".json", ""));
+
+        res.json(data);
+
+    } catch (error) {
+
+        console.error(error);
+        res.status(500).json({
+            error: "Fehler beim Laden der Dateien"
+        });
+
+    }
+
+});
+
+app.get("/data/:id", async (req, res) => {
+
+    try {
+
+        const filename = `json/${req.params.id}.json`;
+
+        const [contents] =
+            await bucket.file(filename).download();
+
+        res.json(JSON.parse(contents.toString()));
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(404).json({
+            error: "Datei nicht gefunden"
+        });
+
+    }
+
+});
+
+app.put("/data/:id", async (req, res) => {
+
+    try {
+
+        const filename = `json/${req.params.id}.json`;
+
+        await bucket.file(filename).save(
+            JSON.stringify(req.body, null, 2),
+            {
+                contentType: "application/json"
+            }
+        );
+
+        res.json({
+            status: "updated",
+            file: filename
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            error: "Fehler beim Aktualisieren"
+        });
+
+    }
+
+});
+    
 // JSON senden
 async function sendToServer(data) {
   await fetch("/save-data", {
@@ -294,17 +386,92 @@ async function sendToServer(data) {
 
 // Gesamt speichern
 async function saveAll() {
-  const data = collectData();
+    const data = collectData();
 
-  const id = generateID();
-  data.id = id;
+    if (editingID) {
+        data.id = editingID;
+        await fetch("/data/" + encodeURIComponent(editingID), {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+        alert("Änderungen gespeichert!");
 
-  exportPDF(data);
-  await sendToServer(data);
+    } else {
+        const id = generateID();
+        data.id = id;
+        await sendToServer(data);
+        editingID = id;
+        alert("Test gespeichert!");
 
-  alert("Gespeichert!");
+    }
+    exportPDF(data);
+}
 
-  localStorage.removeItem("pullout_backup");
+async function loadTestList() {
+    const response = await fetch("/data");
+    const tests = await response.json();
+    const select =
+        document.getElementById("savedTests");
+    tests.forEach(id => {
+        const option =
+            document.createElement("option");
+        option.value = id;
+        option.textContent = id;
+        select.appendChild(option);
+    });
+}
+
+async function loadSelectedTest() {
+    const id =
+        document.getElementById("savedTests").value;
+    if (!id) {
+        alert("Bitte zuerst einen Test auswählen.");
+        return;
+    }
+    const response =
+        await fetch("/data/" + encodeURIComponent(id));
+    const data = await response.json();
+    restoreData(data);
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+    
+function restoreData(data) {
+
+    projekt.value = data.projekt || "";
+    datum.value = data.datum || "";
+    uhrzeit.value = data.uhrzeit || "";
+    nummer.value = data.nummer || "";
+    rammtiefe.value = data.rammtiefe || "";
+    kommentar.value = data.kommentar || "";
+    rammzeit.value = data.rammzeit || "";
+
+    for (let i = 0; i < 10; i++) {
+        table.rows[i + 1].cells[1].children[0].value =
+            data.table[i]?.[0] || "";
+        table.rows[i + 1].cells[2].children[0].value =
+            data.table[i]?.[1] || "";
+    }
+
+    for (let i = 0; i < 10; i++) {
+        table2.rows[i + 1].cells[1].children[0].value =
+            data.table[i + 10]?.[0] || "";
+        table2.rows[i + 1].cells[2].children[0].value =
+            data.table[i + 10]?.[1] || "";
+    }
+
+    for (let i = 0; i < 10; i++) {
+        table3.rows[i + 1].cells[1].children[0].value =
+            data.table[i + 20]?.[0] || "";
+        table3.rows[i + 1].cells[2].children[0].value =
+            data.table[i + 20]?.[1] || "";
+    }
+    editingID = data.id;
 }
 
 // VIDEO
