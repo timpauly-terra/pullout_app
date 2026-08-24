@@ -81,6 +81,84 @@ app.post("/save-data", async (req, res) => {
 
 });
 
+app.get("/data", async (req, res) => {
+
+    try {
+
+        const [files] = await bucket.getFiles({
+            prefix: "json/"
+        });
+
+        const data = files
+            .filter(file => file.name.endsWith(".json"))
+            .map(file => file.name.replace("json/", "").replace(".json", ""));
+
+        res.json(data);
+
+    } catch (error) {
+
+        console.error(error);
+        res.status(500).json({
+            error: "Fehler beim Laden der Dateien"
+        });
+
+    }
+
+});
+
+app.get("/data/:id", async (req, res) => {
+
+    try {
+
+        const filename = `json/${req.params.id}.json`;
+
+        const [contents] =
+            await bucket.file(filename).download();
+
+        res.json(JSON.parse(contents.toString()));
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(404).json({
+            error: "Datei nicht gefunden"
+        });
+
+    }
+
+});
+
+app.put("/data/:id", async (req, res) => {
+
+    try {
+
+        const filename = `json/${req.params.id}.json`;
+
+        await bucket.file(filename).save(
+            JSON.stringify(req.body, null, 2),
+            {
+                contentType: "application/json"
+            }
+        );
+
+        res.json({
+            status: "updated",
+            file: filename
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            error: "Fehler beim Aktualisieren"
+        });
+
+    }
+
+});
+
 // Photo
 const uploadPhoto = multer({
   dest: "uploads/"
