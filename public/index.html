@@ -152,6 +152,8 @@ Coating beschädigt (damage)
 
 <script>
 
+let editingID = null;
+    
 const lang = {
   de: {
     projekt: "Projektname",
@@ -296,84 +298,6 @@ function exportPDF(data) {
 
   doc.save(data.id + ".pdf");
 }
-
-app.get("/data", async (req, res) => {
-
-    try {
-
-        const [files] = await bucket.getFiles({
-            prefix: "json/"
-        });
-
-        const data = files
-            .filter(file => file.name.endsWith(".json"))
-            .map(file => file.name.replace("json/", "").replace(".json", ""));
-
-        res.json(data);
-
-    } catch (error) {
-
-        console.error(error);
-        res.status(500).json({
-            error: "Fehler beim Laden der Dateien"
-        });
-
-    }
-
-});
-
-app.get("/data/:id", async (req, res) => {
-
-    try {
-
-        const filename = `json/${req.params.id}.json`;
-
-        const [contents] =
-            await bucket.file(filename).download();
-
-        res.json(JSON.parse(contents.toString()));
-
-    } catch (error) {
-
-        console.error(error);
-
-        res.status(404).json({
-            error: "Datei nicht gefunden"
-        });
-
-    }
-
-});
-
-app.put("/data/:id", async (req, res) => {
-
-    try {
-
-        const filename = `json/${req.params.id}.json`;
-
-        await bucket.file(filename).save(
-            JSON.stringify(req.body, null, 2),
-            {
-                contentType: "application/json"
-            }
-        );
-
-        res.json({
-            status: "updated",
-            file: filename
-        });
-
-    } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
-            error: "Fehler beim Aktualisieren"
-        });
-
-    }
-
-});
     
 // JSON senden
 async function sendToServer(data) {
@@ -384,11 +308,43 @@ async function sendToServer(data) {
   });
 }
 
+function newTest() {
+    // Bearbeitungsmodus verlassen
+    editingID = null;
+
+    // Alle allgemeinen Felder leeren
+    projekt.value = "";
+    datum.value = "";
+    uhrzeit.value = "";
+    nummer.value = "";
+    rammtiefe.value = "";
+    kommentar.value = "";
+    rammzeit.value = "";
+
+    // Checkboxen zurücksetzen
+    damage.checked = false;
+    coatdamage.checked = false;
+
+    // Alle Tabellenfelder leeren
+    [table, table2, table3].forEach(currentTable => {
+        for (let i = 1; i <= 10; i++) {
+            currentTable.rows[i].cells[1].children[0].value = "";
+            currentTable.rows[i].cells[2].children[0].value = "";
+        }
+    });
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+    
 // Gesamt speichern
 async function saveAll() {
     const data = collectData();
 
     if (editingID) {
+        // Bestehenden Test aktualisieren
         data.id = editingID;
         await fetch("/data/" + encodeURIComponent(editingID), {
             method: "PUT",
@@ -400,26 +356,35 @@ async function saveAll() {
         alert("Änderungen gespeichert!");
 
     } else {
+        // Neuer Test
         const id = generateID();
         data.id = id;
         await sendToServer(data);
         editingID = id;
         alert("Test gespeichert!");
-
     }
     exportPDF(data);
+    // Liste aktualisieren
+    await loadTestList();
 }
 
 async function loadTestList() {
+
     const response = await fetch("/data");
     const tests = await response.json();
-    const select =
-        document.getElementById("savedTests");
+
+    const select = document.getElementById("savedTests");
+
+    // Alte Einträge entfernen
+    select.innerHTML = '<option value="">Test auswählen...</option>';
+
     tests.forEach(id => {
-        const option =
-            document.createElement("option");
+
+        const option = document.createElement("option");
+
         option.value = id;
         option.textContent = id;
+
         select.appendChild(option);
     });
 }
@@ -450,6 +415,9 @@ function restoreData(data) {
     rammtiefe.value = data.rammtiefe || "";
     kommentar.value = data.kommentar || "";
     rammzeit.value = data.rammzeit || "";
+
+    damage.checked = data.damage || false;
+    coatdamage.checked = data.coatdamage || false;
 
     for (let i = 0; i < 10; i++) {
         table.rows[i + 1].cells[1].children[0].value =
@@ -695,6 +663,9 @@ if ("serviceWorker" in navigator) {
 
 }
 
+window.addEventListener("DOMContentLoaded", () => {
+    loadTestList();
+});
 </script>
 
 </body>
